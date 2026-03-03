@@ -26,6 +26,11 @@ if (nargin < 2)
    return;
 end
 
+% added a mechanism to take into account if only one ROI is present and converts it into an array
+if isstruct(cvsROIs)
+    cvsROIs = {cvsROIs};
+end
+
 % - Build a regions structure
 sRegions.Connectivity = 8;
 sRegions.ImageSize = vnImageSize;
@@ -54,9 +59,9 @@ for (nROIIndex = numel(cvsROIs):-1:1)
          mbThisMask = ellipse2mask('bounds', vnImageSize, sThisROI.vnRectBounds+1);
          sRegions.PixelIdxList{nROIIndex} = find(mbThisMask');
          
-      case {'polygon'; 'freehand'}
+      case  {'polygon'; 'freehand'; 'traced'} %edited to accept traced ROIs
          % - Draw a polygonal mask
-         mbThisMask = poly2mask(sThisROI.mnCoordinates(:, 1)+1, sThisROI.mnCoordinates(:, 2)+1, vnImageSize(1), vnImageSize(2));
+         mbThisMask = poly2mask(sThisROI.mnCoordinates(:, 2)+1, sThisROI.mnCoordinates(:, 1)+1, vnImageSize(1), vnImageSize(2)); %coordinate transpose
          sRegions.PixelIdxList{nROIIndex} = find(mbThisMask');
          
       otherwise
